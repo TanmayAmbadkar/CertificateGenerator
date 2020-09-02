@@ -1,5 +1,5 @@
 from django.urls import path
-from backend.views import *
+from store.views import *
 from django.conf.urls import include
 
 urlpatterns = [

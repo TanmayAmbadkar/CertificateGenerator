@@ -9,6 +9,7 @@ class Certificate(models.Model):
     event = models.CharField(max_length = 20)
     year = models.CharField(max_length = 4)
     cert = models.FileField(upload_to=f'{event}/{year}/')
+    name = models.CharField(max_length=100, null = True)
 
 
     def __str__(self):

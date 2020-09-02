@@ -4,8 +4,8 @@ from store.forms import *
 from django.http import HttpResponseRedirect
 import pandas as pd
 from django.views.generic import TemplateView
-
-
+from zipfile import ZipFile
+import os
 # Create your views here.
 
 
@@ -13,15 +13,19 @@ def uploadView(request):
 
     if request.method == 'POST':
 
-        form = CertificateForm(request.POST)
+        form = CertificateForm(request.POST, request.FILES)
 
         if form.is_valid():
             csv = form.cleaned_data['csv']
+            event = form.cleaned_data['event']
+            zip = request.FILES['certificates']
+            year = form.cleaned_data['year']
 
             df = pd.read_csv(csv)
-            data = df[['RollNo', 'Hash', 'Filename']]
+            df.head()
+            data = df[['RollNo', 'Hash', 'Filename', 'Name']]
 
-            processing(data)
+            processing(event, year, data, zip)
 
             return HttpResponseRedirect('/home/')
 
@@ -29,6 +33,31 @@ def uploadView(request):
         form = CertificateForm()
 
     return render(request, 'upload.html', {'form': form})
+
+
+def processing(event, year, data, zip):
+
+    with ZipFile(zip, 'r') as zipObj:
+        zipObj.extractall('temp')
+
+    
+    for i in range(len(data)):
+
+        print(data['Filename'][i])
+        fname = "temp/" + data['Filename'][i]
+        obj = Certificate(cert_id = data['Hash'][i],
+                          rollno = data['RollNo'][i],
+                          event = event,
+                          year = year,
+                          cert = fname,
+                          name = data['Name'][i])
+        obj.save()
+
+
+
+
+
+
 
 class HomeView(TemplateView):
 

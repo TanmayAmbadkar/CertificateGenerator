@@ -24,8 +24,8 @@ from store.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',  HomeView.as_view(), name = 'home'),
-    path('', include('backend.urls')),
+    path('', include('store.urls')),
     path('login/', views.LoginView.as_view(), name = 'login'),
-    path('accounts/logout/', views.LogoutView.as_view(), name = 'logout', kwargs = {'next_page':'home'}),
+    path('logout/', views.LogoutView.as_view(), name = 'logout', kwargs = {'next_page':'home'}),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
