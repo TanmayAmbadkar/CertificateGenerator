@@ -5,7 +5,6 @@ class CertificateForm(forms.Form):
 
     event = forms.CharField(max_length=20)
     year = forms.CharField(max_length = 4)
-    certificates = forms.FileField()
     csv = forms.FileField()
 
 class VerificationForm(forms.Form):

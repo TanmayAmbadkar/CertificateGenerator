@@ -1,0 +1,15 @@
+{% extends "store/base.html" %}
+{%  load static %}
+
+{% block content %}
+<div class="jumbotron">
+
+  <div class="alert alert-danger" role="alert">
+      Certificate not found!
+  </div>
+  <hr class="my-4">
+  <p>Click here to go back home</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'home' %}" role="button">Home</a>
+
+</div>
+{% endblock %}

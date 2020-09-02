@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from store.models import *
 from store.forms import *
 from django.http import HttpResponseRedirect
@@ -18,7 +18,6 @@ def uploadView(request):
         if form.is_valid():
             csv = form.cleaned_data['csv']
             event = form.cleaned_data['event']
-            zip = request.FILES['certificates']
             year = form.cleaned_data['year']
 
             df = pd.read_csv(csv)
@@ -37,24 +36,15 @@ def uploadView(request):
 
 def processing(event, year, data, zip):
 
-    with ZipFile(zip, 'r') as zipObj:
-        zipObj.extractall('temp')
 
-    
     for i in range(len(data)):
 
-        print(data['Filename'][i])
-        fname = "temp/" + data['Filename'][i]
         obj = Certificate(cert_id = data['Hash'][i],
                           rollno = data['RollNo'][i],
                           event = event,
                           year = year,
-                          cert = fname,
                           name = data['Name'][i])
         obj.save()
-
-
-
 
 
 
@@ -72,12 +62,18 @@ def verifyView(request):
         if form.is_valid():
 
             id = form.cleaned_data['id']
-            certificate = Certificate.objects.get(cert_id=id).first()
 
-            if certificate is None:
-                return HttpResponseRedirect('/found/')
-            else:
-                HttpResponseRedirect('/not_found/')
+            try:
+                certificate = Certificate.objects.get(cert_id=id)
+                dict = {'name': certificate.name,
+                        'rollno': certificate.rollno,
+                        'id': certificate.cert_id,
+                        'event': certificate.event,
+                        'year': certificate.year}
+
+                return render(request, 'found.html', dict)
+            except:
+                return HttpResponseRedirect('/not_found/')
 
 
     else:
