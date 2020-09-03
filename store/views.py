@@ -19,6 +19,7 @@ def uploadView(request):
             csv = form.cleaned_data['csv']
             event = form.cleaned_data['event']
             year = form.cleaned_data['year']
+            zip = request.FILES['certificates']
 
             df = pd.read_csv(csv)
             df.head()
@@ -36,14 +37,18 @@ def uploadView(request):
 
 def processing(event, year, data, zip):
 
+    with ZipFile(zip, 'r') as zipObj:
+        zipObj.extractall('media/certificates/')
 
     for i in range(len(data)):
+        fname = f'certificates/{data["Filename"][i]}'
 
         obj = Certificate(cert_id = data['Hash'][i],
                           rollno = data['RollNo'][i],
                           event = event,
                           year = year,
-                          name = data['Name'][i])
+                          name = data['Name'][i],
+                          file = fname)
         obj.save()
 
 
@@ -64,15 +69,18 @@ def verifyView(request):
             id = form.cleaned_data['id']
 
             try:
+                print('found!')
                 certificate = Certificate.objects.get(cert_id=id)
                 dict = {'name': certificate.name,
                         'rollno': certificate.rollno,
                         'id': certificate.cert_id,
                         'event': certificate.event,
-                        'year': certificate.year}
+                        'year': certificate.year,
+                        'file': certificate.file}
 
                 return render(request, 'found.html', dict)
             except:
+                print('Not found!')
                 return HttpResponseRedirect('/not_found/')
 
 
