@@ -2,22 +2,18 @@
 {%  load static %}
 
 {% block content %}
-<div class="jumbotron">
 
-  <div class="alert alert-success" role="alert">
-      Certificate Found!
-  </div>
+<div class="jumbotron">
+  <h1 class="display-4">Certificates Found</h1>
   <hr class="my-4">
-  <p class="lead">Name : {{name}}</p>
-  <p class="lead">RollNo : {{rollno}}</p>
-  <p class="lead">Event : {{event}}</p>
-  <p class="lead">Year : {{year}}</p>
-  <p class="lead">Issued on : {{date}}</p>
-  <p class="lead">ID : {{id}}</p>
-  <a href="/media/{{file}}" target = "_blank">Certificate</br></a>
-  
-  <embed src="/media/{{file}}" width="875px" height="625px" />
-  <hr class="my-4">
+
+  {% for certificate in certificates %}
+      <p class="lead">Event : {{certificate.event}}</p>
+      <p class="lead">Year : {{certificate.year}}</p>
+      <p class="lead">ID : <a href="{% url 'certificate' pk=certificate.pk %}">{{certificate.pk}}</a></p>
+      <hr class="my-4">
+
+  {% endfor %}
   <p>Click here to go back home</p>
   <a class="btn btn-primary btn-lg" href="{% url 'home' %}" role="button">Home</a>
 </div>

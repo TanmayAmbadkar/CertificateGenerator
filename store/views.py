@@ -3,7 +3,7 @@ from store.models import *
 from store.forms import *
 from django.http import HttpResponseRedirect
 import pandas as pd
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from zipfile import ZipFile
 import os
 # Create your views here.
@@ -67,30 +67,27 @@ def verifyView(request):
 
         if form.is_valid():
 
-            id = form.cleaned_data['id']
+            rollno = form.cleaned_data['rollno']
 
-            try:
-                print('found!')
-                certificate = Certificate.objects.get(cert_id=id)
-                dict = {'name': certificate.name,
-                        'rollno': certificate.rollno,
-                        'id': certificate.cert_id,
-                        'event': certificate.event,
-                        'year': certificate.year,
-                        'file': certificate.file,
-			'date':certificate.date
-		}
+            #try:
+            print('found!')
+            certificates = Certificate.objects.all().filter(rollno = rollno)
 
-                return render(request, 'found.html', dict)
-            except:
-                print('Not found!')
-                return HttpResponseRedirect('/not_found/')
+            return render(request, 'found.html', {'certificates':certificates})
+            #except:
+                #print('Not found!')
+                #return HttpResponseRedirect('/not_found/')
 
 
     else:
         form = VerificationForm()
 
     return render(request, 'verify.html', {'form': form})
+
+class CertificateDetailView(DetailView):
+
+    model = Certificate
+    template_name = 'certificate.html'
 
 class NotFoundView(TemplateView):
 

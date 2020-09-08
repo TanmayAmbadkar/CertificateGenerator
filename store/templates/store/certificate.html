@@ -1,0 +1,24 @@
+{% extends "store/base.html" %}
+{%  load static %}
+
+{% block content %}
+<div class="jumbotron">
+
+  <div class="alert alert-success" role="alert">
+      Certificate Found!
+  </div>
+  <hr class="my-4">
+  <p class="lead">Name : {{certificate.name}}</p>
+  <p class="lead">RollNo : {{certificate.rollno}}</p>
+  <p class="lead">Event : {{certificate.event}}</p>
+  <p class="lead">Year : {{certificate.year}}</p>
+  <p class="lead">Issued on : {{certificate.date}}</p>
+  <p class="lead">ID : {{certificate.pk}}</p>
+  <a href="/media/{{certificate.file}}" target = "_blank">Certificate</br></a>
+
+  <embed src="/media/{{certificate.file}}" width="875px" height="625px" />
+  <hr class="my-4">
+  <p>Click here to go back home</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'home' %}" role="button">Home</a>
+</div>
+{% endblock %}

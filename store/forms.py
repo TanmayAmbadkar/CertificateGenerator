@@ -10,4 +10,4 @@ class CertificateForm(forms.Form):
 
 class VerificationForm(forms.Form):
 
-    id = forms.CharField(max_length = 200)
+    rollno = forms.CharField(max_length = 200)
