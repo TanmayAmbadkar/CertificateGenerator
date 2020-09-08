@@ -10,7 +10,7 @@
   {% for certificate in certificates %}
       <p class="lead">Event : {{certificate.event}}</p>
       <p class="lead">Year : {{certificate.year}}</p>
-      <p class="lead">ID : <a href="{% url 'certificate' pk=certificate.pk %}">{{certificate.pk}}</a></p>
+      <p class="lead">ID : <a href="{% url 'certificate' pk=certificate.pk %}">{{certificate.cert_id}}</a></p>
       <hr class="my-4">
 
   {% endfor %}

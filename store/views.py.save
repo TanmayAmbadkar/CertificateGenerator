@@ -43,8 +43,7 @@ def processing(event, year, data, zip):
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
 
-        obj = Certificate(cert_id = data['Certificate ID'][i],
-			  id = data['Certificate ID'][i].replace('/','-'),
+        obj = Certificate(cert_id = data['Certificate ID'][i].replace,
                           rollno = data['RollNo'][i],
                           event = event,
                           year = year,
@@ -70,11 +69,14 @@ def verifyView(request):
 
             rollno = form.cleaned_data['rollno']
 
+            #try:
+            print('found!')
             certificates = Certificate.objects.all().filter(rollno = rollno)
-            if(len(certificates)!=0):
-                return render(request, 'found.html', {'certificates':certificates})
-            else:
-                return HttpResponseRedirect('/not_found/')
+
+            return render(request, 'found.html', {'certificates':certificates})
+            #except:
+                #print('Not found!')
+                #return HttpResponseRedirect('/not_found/')
 
 
     else:

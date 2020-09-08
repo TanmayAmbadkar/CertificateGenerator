@@ -4,7 +4,8 @@ from django.db import models
 
 class Certificate(models.Model):
 
-    cert_id = models.CharField(max_length = 200, primary_key = True)
+    id = models.CharField(max_length = 200, primary_key = True)
+    cert_id = models.CharField(max_length = 200)
     rollno = models.CharField(max_length = 12)
     event = models.CharField(max_length = 20)
     year = models.CharField(max_length = 4)
