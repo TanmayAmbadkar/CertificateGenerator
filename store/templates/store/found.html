@@ -12,8 +12,11 @@
   <p class="lead">RollNo : {{rollno}}</p>
   <p class="lead">Event : {{event}}</p>
   <p class="lead">Year : {{year}}</p>
+  <p class="lead">Issued on : {{date}}</p>
   <p class="lead">ID : {{id}}</p>
-  <a href="/media/{{file}}">Certificate</a>
+  <a href="/media/{{file}}" target = "_blank">Certificate</br></a>
+  
+  <embed src="/media/{{file}}" width="875px" height="625px" />
   <hr class="my-4">
   <p>Click here to go back home</p>
   <a class="btn btn-primary btn-lg" href="{% url 'home' %}" role="button">Home</a>

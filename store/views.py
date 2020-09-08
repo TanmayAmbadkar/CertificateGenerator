@@ -23,7 +23,7 @@ def uploadView(request):
 
             df = pd.read_csv(csv)
             df.head()
-            data = df[['RollNo', 'Hash', 'Filename', 'Name']]
+            data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date']]
 
             processing(event, year, data, zip)
 
@@ -38,16 +38,17 @@ def uploadView(request):
 def processing(event, year, data, zip):
 
     with ZipFile(zip, 'r') as zipObj:
-        zipObj.extractall('media/certificates/')
+        zipObj.extractall('/home/ubuntu/CertificateGenerator/media/certificates/')
 
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
 
-        obj = Certificate(cert_id = data['Hash'][i],
+        obj = Certificate(cert_id = data['Certificate ID'][i],
                           rollno = data['RollNo'][i],
                           event = event,
                           year = year,
                           name = data['Name'][i],
+			  date = data['Date'][i],
                           file = fname)
         obj.save()
 
@@ -76,7 +77,9 @@ def verifyView(request):
                         'id': certificate.cert_id,
                         'event': certificate.event,
                         'year': certificate.year,
-                        'file': certificate.file}
+                        'file': certificate.file,
+			'date':certificate.date
+		}
 
                 return render(request, 'found.html', dict)
             except:

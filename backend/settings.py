@@ -25,9 +25,9 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'store/templates/store')
 SECRET_KEY = 'w+jmotv*j1isavf!$(4$08qaf(bx186m@g$o$kz_c2z5is^-9w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ec2-13-234-117-177.ap-south-1.compute.amazonaws.com', '13.234.117.177',]
 
 
 # Application definition
@@ -126,7 +126,7 @@ STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
 
-#STATIC_ROOT=os.path.join(BASE_DIR,'static')
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_DIRS = [
 
