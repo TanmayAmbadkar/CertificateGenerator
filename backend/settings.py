@@ -23,11 +23,12 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'store/templates/store')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'w+jmotv*j1isavf!$(4$08qaf(bx186m@g$o$kz_c2z5is^-9w'
+#SECRET_KEY = os.environ.get('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['ec2-13-234-117-177.ap-south-1.compute.amazonaws.com', '13.234.117.177','localhost']
+ALLOWED_HOSTS = ['ec2-13-234-117-177.ap-south-1.compute.amazonaws.com', '13.234.117.177','localhost', 'cert-iiit.tk']
 
 
 # Application definition

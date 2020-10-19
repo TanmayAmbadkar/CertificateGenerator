@@ -3,7 +3,7 @@
 {% block content %}
 <section class="site-section py-lg">
   <div class="jumbotron">
-        <h1>Enter the certificate id</h1>
+        <h1>Enter the Roll Number of the student or the Certificate ID of the certificate</h1>
         <form class="post-form" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{form.as_p}}

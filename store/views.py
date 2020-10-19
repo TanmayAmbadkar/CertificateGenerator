@@ -74,7 +74,12 @@ def verifyView(request):
             if(len(certificates)!=0):
                 return render(request, 'found.html', {'certificates':certificates})
             else:
-                return HttpResponseRedirect('/not_found/')
+
+                try:
+                    certificate = Certificate.objects.get(cert_id = rollno)
+                    return HttpResponseRedirect(f'/certificate/{certificate.id}')
+                except:
+                    return HttpResponseRedirect('/not_found/')
 
 
     else:
