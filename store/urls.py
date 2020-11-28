@@ -8,7 +8,7 @@ urlpatterns = [
     path('upload/', uploadView, name = 'upload'),
     path('verify/', verifyView, name = 'verify'),
     path('not_found/', NotFoundView.as_view(), name = 'not_found'),
-    path('found/', FoundView.as_view(), name = 'found'),
-    path('certificate/<str:pk>', CertificateDetailView.as_view(), name='certificate')
+    path('certificate/<str:pk>', CertificateDetailView.as_view(), name='certificate'),
+    path('count', CertficateCount.as_view(), name='count')
 
 ]

@@ -12,23 +12,22 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'store/templates/store')
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'w+jmotv*j1isavf!$(4$08qaf(bx186m@g$o$kz_c2z5is^-9w'
-#SECRET_KEY = os.environ.get('SECRET')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True if config('DEBUG') == "True" else False
 
-ALLOWED_HOSTS = ['ec2-13-234-117-177.ap-south-1.compute.amazonaws.com', '13.234.117.177','localhost', 'cert-iiit.tk']
+ALLOWED_HOSTS = ['localhost', 'cert-iiit.tk', '127.0.0.1']
 
 
 # Application definition
@@ -40,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'store'
+    'store',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -141,3 +141,6 @@ MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 #MEDIALFILES_DIR=[
 #        os.path.join(BASE_DIR,'media'),
 #        ]
+
+EMAIL = config('EMAIL')
+PASSWORD = config('PASSWORD')
