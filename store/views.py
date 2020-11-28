@@ -6,6 +6,12 @@ import pandas as pd
 from django.views.generic import TemplateView, DetailView
 from zipfile import ZipFile
 import os
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from store.send_email import *
+from backend import settings
+from apscheduler.schedulers.background import BackgroundScheduler
+
 # Create your views here.
 
 
@@ -23,9 +29,13 @@ def uploadView(request):
 
             df = pd.read_csv(csv)
             df.head()
-            data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date']]
+            data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email']]
 
             processing(event, year, data, zip)
+            scheduler = BackgroundScheduler()
+            scheduler.add_job(func = mails, args = (data, event, year))
+            scheduler.start()
+            #mails(data, event, year)
 
             return HttpResponseRedirect('/home/')
 
@@ -33,6 +43,17 @@ def uploadView(request):
         form = CertificateForm()
 
     return render(request, 'upload.html', {'form': form})
+
+def mails(data, event, year):
+    for i in range(len(data)):
+
+        params = {'name': data['Name'][i],
+                  'email': data['Email'][i],
+                  'event': event,
+                  'year': year,
+                  'id': data['Certificate ID'][i].replace('/','-')}
+
+        send_mail(params, settings.EMAIL, settings.PASSWORD)
 
 
 def processing(event, year, data, zip):
@@ -52,8 +73,6 @@ def processing(event, year, data, zip):
 			  date = data['Date'][i],
                           file = fname)
         obj.save()
-
-
 
 
 class HomeView(TemplateView):
@@ -87,6 +106,13 @@ def verifyView(request):
 
     return render(request, 'verify.html', {'form': form})
 
+class CertficateCount(APIView):
+
+    def get(self, request, format=None):
+
+        certificates = Certificate.objects.all()
+        return Response({"count": len(certificates)})
+
 class CertificateDetailView(DetailView):
 
     model = Certificate
@@ -95,7 +121,3 @@ class CertificateDetailView(DetailView):
 class NotFoundView(TemplateView):
 
     template_name = 'not_found.html'
-
-class FoundView(TemplateView):
-
-    template_name = 'found.html'
