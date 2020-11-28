@@ -68,7 +68,7 @@ def verifyView(request):
 
         if form.is_valid():
 
-            rollno = form.cleaned_data['rollno']
+            rollno = form.cleaned_data['ID']
 
             certificates = Certificate.objects.all().filter(rollno = rollno)
             if(len(certificates)!=0):

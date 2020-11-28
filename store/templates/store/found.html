@@ -7,13 +7,28 @@
   <h1 class="display-4">Certificates Found</h1>
   <hr class="my-4">
 
+  <table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Event</th>
+      <th scope="col">Year</th>
+      <th scope="col">Certificate ID</th>
+    </tr>
+  </thead>
+  <tbody>
   {% for certificate in certificates %}
-      <p class="lead">Event : {{certificate.event}}</p>
-      <p class="lead">Year : {{certificate.year}}</p>
-      <p class="lead">ID : <a href="{% url 'certificate' pk=certificate.pk %}">{{certificate.cert_id}}</a></p>
-      <hr class="my-4">
-
+    <tr>
+      <th>{{certificate.name}}</th>
+      <td>{{certificate.event}}</td>
+      <td>{{certificate.year}}</td>
+      <td><a href="{% url 'certificate' pk=certificate.pk %}">{{certificate.cert_id}}</a></td>
+    </tr>
   {% endfor %}
+  </tbody>
+  </table>
+
+
   <p>Click here to go back home</p>
   <a class="btn btn-primary btn-lg" href="{% url 'home' %}" role="button">Home</a>
 </div>
