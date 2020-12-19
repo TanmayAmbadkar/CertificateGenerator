@@ -6,6 +6,7 @@ urlpatterns = [
 
     path('home/', HomeView.as_view(), name = 'home'),
     path('upload/', uploadView, name = 'upload'),
+    path('generate/', generate_certs, name = 'generate'),
     path('verify/', verifyView, name = 'verify'),
     path('not_found/', NotFoundView.as_view(), name = 'not_found'),
     path('certificate/<str:pk>', CertificateDetailView.as_view(), name='certificate'),

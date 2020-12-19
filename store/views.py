@@ -8,11 +8,56 @@ from zipfile import ZipFile
 import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from store.send_email import *
+from store.utils import *
 from backend import settings
 from apscheduler.schedulers.background import BackgroundScheduler
+from django.http import JsonResponse
+from django.core import serializers
+import json
+from store.serializers import *
 
 # Create your views here.
+def generate_certs(request):
+
+    if request.method == 'POST':
+
+        form = CertificateForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            csv = form.cleaned_data['csv']
+            event = form.cleaned_data['event']
+            year = form.cleaned_data['year']
+            image = request.FILES['certificates']
+
+            df = pd.read_csv(csv)
+            certificates = Certificate.objects.all()
+            len(certificates)
+            df = id_generate(df, len(certificates)+1, year, event)
+
+            cert = TempCert(image = image)
+            cert.csv.name = os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv')
+            cert.save()
+            columns = df.columns.tolist()
+            details = df.values
+            response_list = {'columns': columns}
+            response_list['cert'] = TempCertSerializer(cert).data
+            for detail in details:
+
+                response = {}
+                for column, value in zip(columns, detail):
+
+                    response[column] = value
+
+                response_list[detail[-5]] = response
+
+            return JsonResponse(response_list)
+
+    else:
+        form = CertificateForm()
+
+    return render(request, 'upload.html', {'form': form})
+
+
 
 
 def uploadView(request):

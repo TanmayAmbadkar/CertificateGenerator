@@ -3,6 +3,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import pandas as pd
+import time
+import datetime
+from backend import settings
+import os
 
 def send_mail(params, email, password):
 
@@ -47,3 +51,36 @@ def send_mail(params, email, password):
     mail.login(email, password)
     mail.sendmail(email, params['email'], msg.as_string())
     mail.quit()
+
+
+def id_generate(dataset, count, year, event_name):
+    emails = dataset['Email']
+    dataset = dataset.drop('Email', axis = 1)
+    details = dataset.iloc[:,1:].values
+    cert_id = []
+    filenames = []
+    i = count
+    today = datetime.date.today().strftime('%d-%m-%Y')
+    date = []
+    for detail in details:
+
+        detail[0]=str(detail[0])
+        x = f"IIITV/STUD-GYMKHANA/CERT/{year}/{i:06}"
+        fname = f"IIITV-STUD-GYMKHANA-CERT-{year}-{i}.pdf"
+        i+=1
+        filenames.append(fname)
+        cert_id.append(x)
+        date.append(today)
+
+    dataset['Certificate ID']=cert_id
+    dataset['Date'] = date
+    rollno = dataset['RollNo']
+    dataset = dataset.drop('RollNo', axis = 1)
+
+
+    dataset['RollNo']=rollno
+    dataset['Filename']=filenames
+    dataset['Email'] = emails
+    dataset.to_csv(os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv'),index=False)
+
+    return dataset

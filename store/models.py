@@ -15,3 +15,8 @@ class Certificate(models.Model):
 
     def __str__(self):
         return self.cert_id
+
+class TempCert(models.Model):
+
+    image = models.FileField(upload_to = "images/", null = True)
+    csv = models.FileField(upload_to = "csv/", null = True)
