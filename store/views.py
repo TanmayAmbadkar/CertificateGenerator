@@ -155,7 +155,7 @@ class CertficateCount(APIView):
 
     def get(self, request, format=None):
 
-        certificates = Certificate.objects.order_by('id')
+        certificates = list(Certificate.objects.order_by('id'))
         int(certificates[-1].id[-5:])
         return Response({"count":int(certificates[-1].id[-5:])+1})
 
