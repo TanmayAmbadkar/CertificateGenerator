@@ -157,7 +157,7 @@ class CertficateCount(APIView):
 
         certificates = list(Certificate.objects.order_by('id'))
         int(certificates[-1].id[-5:])
-        return Response({"count":int(certificates[-1].id[-5:])+1})
+        return JsonResponse({"count":int(certificates[-1].id[-5:])+1})
 
 class CertificateDetailView(DetailView):
 
