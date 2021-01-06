@@ -8,3 +8,10 @@ class TempCertSerializer(serializers.ModelSerializer):
 
         model = TempCert
         fields = '__all__'
+
+class CertificateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Certificate
+        fields = '__all__'
