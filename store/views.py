@@ -34,7 +34,7 @@ def generate_certs(request):
             len(certificates)
             df = id_generate(df, len(certificates)+1, year, event)
 
-            cert = TempCert(image = image)
+            cert = TempCert(image = image, event=event, year=year)
             cert.csv.name = f'csv/{event}_{year}.csv'
             cert.save()
             columns = df.columns.tolist()

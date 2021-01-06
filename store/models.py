@@ -20,3 +20,5 @@ class TempCert(models.Model):
 
     image = models.FileField(upload_to = "images/", null = True)
     csv = models.FileField(upload_to = "csv/", null = True)
+    event = models.CharField(max_length = 255, null=True, blank=True)
+    year = models.CharField(max_length=4, null=True, blank=True)
