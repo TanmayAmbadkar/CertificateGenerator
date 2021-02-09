@@ -18,7 +18,7 @@ class GetCertificates(APIView):
     def post(self, request):
 
         id = request.data.get("id")
-
+        print(id)
         certificates = Certificate.objects.all().filter(rollno = id).order_by('id')
         if(len(certificates)!=0):
             print("found rollno")

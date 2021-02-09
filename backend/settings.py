@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'api',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -134,11 +137,11 @@ STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
 
-#STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_DIRS = [
 
-        os.path.join(BASE_DIR, 'staticfiles'),
+        os.path.join(BASE_DIR, 'static'),
 
         ]
 
@@ -151,3 +154,5 @@ MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 
 EMAIL = config('EMAIL')
 PASSWORD = config('PASSWORD')
+CORS_ORIGIN_ALLOW_ALL = True
+
