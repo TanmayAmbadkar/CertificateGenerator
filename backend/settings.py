@@ -155,4 +155,3 @@ MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 EMAIL = config('EMAIL')
 PASSWORD = config('PASSWORD')
 CORS_ORIGIN_ALLOW_ALL = True
-

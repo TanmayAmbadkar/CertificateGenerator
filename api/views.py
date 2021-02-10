@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from store.utils import *
 from store.serializers import *
 from store.models import *
+from api.models import *
 from rest_framework.response import Response
 
 # Create your views here.
@@ -36,8 +37,12 @@ class GetCertificates(APIView):
 
 class UploadInfo(APIView):
 
-    permission_classes = (IsAuthenticated,)
     def post(self, request):
+        try:
+            token = request.data.get('token')
+            tok = LoginToken.objects.get(token=token)
+        except LoginToken.DoesNotExist:
+            return JsonResponse(status=403, data={"message":"access denied"})
 
         event = request.data.get("event")
         year = request.data.get("year")
@@ -68,11 +73,17 @@ class UploadInfo(APIView):
 
 class UploadCertificates(APIView):
 
-    permission_classes=(IsAuthenticated,)
-
     def post(self, request):
 
         try:
+            try:
+                token = request.data.get('token')
+                tok = LoginToken.objects.get(token=token)
+                if not tok.is_valid():
+                    return JsonResponse(status=403, data={"message":"access denied"})
+
+            except LoginToken.DoesNotExist:
+                return JsonResponse(status=403, data={"message":"access denied"})
             id = request.data.get("id")
 
             cert = TempCert.objects.get(id=id)
@@ -122,3 +133,42 @@ def processing(event, year, data, zip):
 			  date = data['Date'][i],
                           file = fname)
         obj.save()
+
+class LoginTokenView(APIView):
+
+    def post(self, request):
+
+        username=request.data.get('username')
+        password=request.data.get('password')
+        print(username)
+        try:
+            user = User.objects.get(username=username)
+            if user.check_password(password):
+                
+                token = LoginToken(user = user)
+                token.save()
+                date = token.expiry
+                year = date.year
+                month = date.strftime("%B")
+                day = date.day
+                date = f"{month} {day}, {year} {date.strftime('%H:%M:%S')}"
+
+                return JsonResponse(status=200, data={"token":token.token, "expiry":date})
+            else:
+                print("Wrong pass")
+                return JsonResponse(status=400, data={"message":"invalid username"})
+        except User.DoesNotExist:
+            print("Wrong username")
+            return JsonResponse(status=400, data={"message":"invalid password"})
+
+class LogoutTokenView(APIView):
+
+    def post(self, request):
+
+        token = request.data.get('token')
+        try:
+            tok = LoginToken.objects.get(token=token)
+            tok.delete()
+            return JsonResponse(status=200, data={"message":"successful"})
+        except  LoginToken.DoesNotExist:
+            return JsonResponse(status=400, data={"message":"does not exist"})
