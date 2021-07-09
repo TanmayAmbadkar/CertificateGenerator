@@ -11,7 +11,7 @@ from store.serializers import *
 from store.models import *
 from api.models import *
 from rest_framework.response import Response
-
+from zipfile import ZipFile
 # Create your views here.
 
 class GetCertificates(APIView):
@@ -57,6 +57,7 @@ class UploadInfo(APIView):
         cert.csv.name = f'csv/{event}_{year}.csv'
         cert.save()
         columns = df.columns.tolist()
+        columns = columns[:-3]
         details = df.values
         response_list = {'columns': columns}
         response_list['cert'] = TempCertSerializer(cert).data
@@ -65,6 +66,8 @@ class UploadInfo(APIView):
             response = {}
             for column, value in zip(columns, detail):
 
+                if column == 'RollNo' or column == 'Filename' or column == 'Email':
+                    continue
                 response[column] = value
 
             response_list[detail[-5]] = response
@@ -76,31 +79,28 @@ class UploadCertificates(APIView):
     def post(self, request):
 
         try:
-            try:
-                token = request.data.get('token')
-                tok = LoginToken.objects.get(token=token)
-                if not tok.is_valid():
-                    return JsonResponse(status=403, data={"message":"access denied"})
-
-            except LoginToken.DoesNotExist:
+            token = request.data.get('token')
+            tok = LoginToken.objects.get(token=token)
+            if not tok.is_valid():
                 return JsonResponse(status=403, data={"message":"access denied"})
-            id = request.data.get("id")
+        except LoginToken.DoesNotExist:
+            return JsonResponse(status=403, data={"message":"access denied"})
 
-            cert = TempCert.objects.get(id=id)
-            zip = request.FILES['zip']
-            df = pd.read_csv(csv)
-            df.head()
-            data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email']]
+        id = request.data.get("id")
 
-            processing(event, year, data, zip)
-            scheduler = BackgroundScheduler()
-            scheduler.add_job(func = mails, args = (data, event, year))
-            scheduler.start()
+        cert = TempCert.objects.get(id=id)
+        zip = request.FILES['zip']
+        df = pd.read_csv(cert.csv)
+        df.head()
+        data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email']]
 
-            return JsonResponse(status=200, data={"message": "Process successful!"})
+        processing(cert.event, cert.year, data, zip)
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func = mails, args = (data, cert.event, cert.year))
+        scheduler.start()
 
-        except:
-            return JsonResponse(status = 500, data={"Message:Some error occurred"})
+        return JsonResponse(status=200, data={"message": "Process successful!"})
+
 
 
 
