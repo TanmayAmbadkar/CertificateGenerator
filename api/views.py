@@ -49,29 +49,31 @@ class UploadInfo(APIView):
         csv = request.data.get('csv')
         image = request.data.get('image')
         df = pd.read_csv(csv)
-        certificates = Certificate.objects.all()
-        len(certificates)
-        df = id_generate(df, len(certificates)+1, year, event)
+        certificate = Certificate.objects.order_by('-number').first()
+        df = id_generate(df, certificate.number, year, event)
 
         cert = TempCert(image = image, event=event, year=year)
         cert.csv.name = f'csv/{event}_{year}.csv'
         cert.save()
         columns = df.columns.tolist()
         columns = columns[:-3]
-        details = df.values
-        response_list = {'columns': columns}
+        columns.append("Filename")
+        details = df[columns].values
+        response_list = {}
         response_list['cert'] = TempCertSerializer(cert).data
         for detail in details:
 
             response = {}
             for column, value in zip(columns, detail):
 
-                if column == 'RollNo' or column == 'Filename' or column == 'Email':
+                if column == 'RollNo' or column == 'Email':
                     continue
                 response[column] = value
 
-            response_list[detail[-5]] = response
+            response_list[detail[-3]] = response
 
+        columns = columns[:-1]
+        response_list['columns'] = columns
         return JsonResponse(response_list)
 
 class UploadCertificates(APIView):
@@ -107,11 +109,13 @@ class UploadCertificates(APIView):
 def mails(data, event, year):
     for i in range(len(data)):
 
-        params = {'name': data['Name'][i],
-                  'email': data['Email'][i],
-                  'event': event,
-                  'year': year,
-                  'id': data['Certificate ID'][i].replace('/','-')}
+        params = {
+            'name': data['Name'][i],
+            'email': data['Email'][i],
+            'event': event,
+            'year': year,
+            'id': data['Certificate ID'][i].replace('-','_').replace('/','-')
+        }
 
         send_mail(params, settings.EMAIL, settings.PASSWORD)
 
@@ -125,7 +129,7 @@ def processing(event, year, data, zip):
         fname = f'certificates/{data["Filename"][i]}'
 
         obj = Certificate(cert_id = data['Certificate ID'][i],
-			  id = data['Certificate ID'][i].replace('/','-'),
+			  id = data['Certificate ID'][i],
                           rollno = data['RollNo'][i],
                           event = event,
                           year = year,
