@@ -62,6 +62,7 @@ def id_generate(dataset, count, year, event_name):
     i = count
     today = datetime.date.today().strftime('%d-%m-%Y')
     date = []
+    counts = []
     for detail in details:
 
         detail[0]=str(detail[0])
@@ -71,6 +72,7 @@ def id_generate(dataset, count, year, event_name):
         filenames.append(fname)
         cert_id.append(x)
         date.append(today)
+        counts.append(i-1)
 
     dataset['Certificate ID']=cert_id
     dataset['Date'] = date
@@ -81,6 +83,7 @@ def id_generate(dataset, count, year, event_name):
     dataset['RollNo']=rollno
     dataset['Filename']=filenames
     dataset['Email'] = emails
+    dataset['Number']=counts
     dataset.to_csv(os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv'),index=False)
 
     return dataset

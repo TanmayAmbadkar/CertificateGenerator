@@ -49,14 +49,21 @@ class UploadInfo(APIView):
         csv = request.data.get('csv')
         image = request.data.get('image')
         df = pd.read_csv(csv)
-        certificate = Certificate.objects.order_by('-number').first()
-        df = id_generate(df, certificate.number, year, event)
+        certificate = Certificate.objects.order_by('-number').filter(year=year).first()
+        try:
+            number = certificate.number+1
+            print(number)
+        except:
+            number = 1
+        print(number)
+        df = id_generate(df, number, year, event)
 
         cert = TempCert(image = image, event=event, year=year)
         cert.csv.name = f'csv/{event}_{year}.csv'
         cert.save()
         columns = df.columns.tolist()
-        columns = columns[:-3]
+        print(columns)
+        columns = columns[:-4]
         columns.append("Filename")
         details = df[columns].values
         response_list = {}
@@ -94,7 +101,7 @@ class UploadCertificates(APIView):
         zip = request.FILES['zip']
         df = pd.read_csv(cert.csv)
         df.head()
-        data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email']]
+        data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email', 'Number']]
 
         processing(cert.event, cert.year, data, zip)
         scheduler = BackgroundScheduler()
@@ -125,17 +132,22 @@ def processing(event, year, data, zip):
     with ZipFile(zip, 'r') as zipObj:
         zipObj.extractall('/home/ubuntu/CertificateGenerator/media/certificates/')
 
+    print(data.columns)
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
 
-        obj = Certificate(cert_id = data['Certificate ID'][i],
+        obj = Certificate(
+
+              cert_id = data['Certificate ID'][i],
 			  id = data['Certificate ID'][i],
-                          rollno = data['RollNo'][i],
-                          event = event,
-                          year = year,
-                          name = data['Name'][i],
-			  date = data['Date'][i],
-                          file = fname)
+              rollno = data['RollNo'][i],
+              event = event,
+              year = year,
+              name = data['Name'][i],
+              date = data['Date'][i],
+              number = data['Number'][i],
+              file = fname
+          )
         obj.save()
 
 class LoginTokenView(APIView):
@@ -148,7 +160,7 @@ class LoginTokenView(APIView):
         try:
             user = User.objects.get(username=username)
             if user.check_password(password):
-                
+
                 token = LoginToken(user = user)
                 token.save()
                 date = token.expiry
