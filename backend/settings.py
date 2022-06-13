@@ -12,8 +12,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config
+import json
 
+with open('/etc/config.json') as config_file:
+    config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,12 +24,12 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'store/templates/store')
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if config('DEBUG') == "True" else False
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', 'cert-iiit.ml', '127.0.0.1','13.233.195.230']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.100.5.78', 'mycertificatesgymkhana.iiitvadodara.ac.in']
 
 
 # Application definition
@@ -137,11 +139,11 @@ STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
 
-STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
+#STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_DIRS = [
 
-        os.path.join(BASE_DIR, 'static'),
+        os.path.join(BASE_DIR, 'staticfiles'),
 
         ]
 
@@ -152,6 +154,6 @@ MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 #        os.path.join(BASE_DIR,'media'),
 #        ]
 
-EMAIL = config('EMAIL')
-PASSWORD = config('PASSWORD')
+EMAIL = config['EMAIL_USER']
+PASSWORD = config['EMAIL_PASS']
 CORS_ORIGIN_ALLOW_ALL = True

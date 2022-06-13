@@ -23,7 +23,7 @@ def send_mail(params, email, password):
         <p>Dear """ + params['name'] + """,<p>
         </br>
         <p>Thank you for participating in """ + params['event'] + " " + params['year'] + """! We are very happy to award you
-        with the following certificate, please find the <a href="https://certificate-generator-iiitv.vercel.app/certificate/""" + params['id'] + """">link</a> to download the certificate with this mail. This link can be given to
+        with the following certificate, please find the <a href="http://mycertificatesgymkhana.iiitvadodara.ac.in/certificate/""" + params['id'] + """">link</a> to download the certificate with this mail. This link can be given to
         any authority which they can use to verify the certificate. </p>
         <p>We hope to see you participate in other events organised by IIIT Vadodara!<p>
 
@@ -84,6 +84,7 @@ def id_generate(dataset, count, year, event_name):
     dataset['Filename']=filenames
     dataset['Email'] = emails
     dataset['Number']=counts
+    media_path = os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv')
     dataset.to_csv(os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv'),index=False)
 
     return dataset

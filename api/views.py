@@ -55,7 +55,6 @@ class UploadInfo(APIView):
             print(number)
         except:
             number = 1
-        print(number)
         df = id_generate(df, number, year, event)
 
         cert = TempCert(image = image, event=event, year=year)
@@ -130,7 +129,7 @@ def mails(data, event, year):
 def processing(event, year, data, zip):
 
     with ZipFile(zip, 'r') as zipObj:
-        zipObj.extractall('/home/ubuntu/CertificateGenerator/media/certificates/')
+        zipObj.extractall('/home/iiitv/certificate_gen/CertificateGenerator/media/certificates/')
 
     print(data.columns)
     for i in range(len(data)):
