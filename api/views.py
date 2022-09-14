@@ -56,23 +56,20 @@ class UploadInfo(APIView):
         except:
             number = 1
         df = id_generate(df, number, year, event)
-
         cert = TempCert(image = image, event=event, year=year)
         cert.csv.name = f'csv/{event}_{year}.csv'
         cert.save()
         columns = df.columns.tolist()
-        print(columns)
-        columns = columns[:-4]
+        columns = columns[:-3]
         columns.append("Filename")
         details = df[columns].values
         response_list = {}
         response_list['cert'] = TempCertSerializer(cert).data
         for detail in details:
-
             response = {}
             for column, value in zip(columns, detail):
 
-                if column == 'RollNo' or column == 'Email':
+                if column == 'Email':
                     continue
                 response[column] = value
 
@@ -86,6 +83,7 @@ class UploadCertificates(APIView):
 
     def post(self, request):
 
+        print("Here in Upload Certificate")
         try:
             token = request.data.get('token')
             tok = LoginToken.objects.get(token=token)
@@ -96,11 +94,15 @@ class UploadCertificates(APIView):
 
         id = request.data.get("id")
 
+        print("received Id")
+
         cert = TempCert.objects.get(id=id)
         zip = request.FILES['zip']
         df = pd.read_csv(cert.csv)
         df.head()
         data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email', 'Number']]
+
+        print("Got zip files")
 
         processing(cert.event, cert.year, data, zip)
         scheduler = BackgroundScheduler()
@@ -129,25 +131,28 @@ def mails(data, event, year):
 def processing(event, year, data, zip):
 
     with ZipFile(zip, 'r') as zipObj:
-        zipObj.extractall('/home/iiitv/certificate_gen/CertificateGenerator/media/certificates/')
+        zipObj.extractall('../media/certificates/')
 
     print(data.columns)
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
 
-        obj = Certificate(
-
-              cert_id = data['Certificate ID'][i],
-			  id = data['Certificate ID'][i],
-              rollno = data['RollNo'][i],
-              event = event,
-              year = year,
-              name = data['Name'][i],
-              date = data['Date'][i],
-              number = data['Number'][i],
-              file = fname
-          )
-        obj.save()
+        try:
+            obj = Certificate(
+                cert_id = data['Certificate ID'][i],
+                id = data['Certificate ID'][i],
+                rollno = None if data['RollNo'] is None else data['RollNo'][i],
+                event = event,
+                year = year,
+                name = data['Name'][i],
+                date = data['Date'][i],
+                number = data['Number'][i],
+                institute_name = "IIITV" if data['Institute Name'] is None else data["Institute Name"][i],
+                file = fname
+            )
+            obj.save()
+        except Exception as exp:
+            print(exp)
 
 class LoginTokenView(APIView):
 

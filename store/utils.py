@@ -74,17 +74,18 @@ def id_generate(dataset, count, year, event_name):
         date.append(today)
         counts.append(i-1)
 
+    if "Institute Name" in dataset.columns:
+      if "RollNo" in dataset.columns:
+        dataset.drop('RollNo', axis = 1, inplace = True)
+      
+
     dataset['Certificate ID']=cert_id
     dataset['Date'] = date
-    rollno = dataset['RollNo']
-    dataset = dataset.drop('RollNo', axis = 1)
-
-
-    dataset['RollNo']=rollno
     dataset['Filename']=filenames
     dataset['Email'] = emails
     dataset['Number']=counts
+
     media_path = os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv')
     dataset.to_csv(os.path.join(settings.MEDIA_ROOT, f'csv/{event_name}_{year}.csv'),index=False)
-
+    
     return dataset
