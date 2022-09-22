@@ -104,10 +104,13 @@ class UploadCertificates(APIView):
 
         print("Got zip files")
 
-        processing(cert.event, cert.year, data, zip)
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(func = mails, args = (data, cert.event, cert.year))
-        scheduler.start()
+        try:
+            processing(cert.event, cert.year, data, zip)
+            scheduler = BackgroundScheduler()
+            scheduler.add_job(func = mails, args = (data, cert.event, cert.year))
+            scheduler.start()
+        except Exception as e:
+            print(e)
 
         return JsonResponse(status=200, data={"message": "Process successful!"})
 
