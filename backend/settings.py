@@ -14,8 +14,8 @@ from pathlib import Path
 import os
 import json
 
-# with open('/etc/config.json') as config_file:
-#     config = json.load(config_file)
+with open('/etc/config.json') as config_file:
+    config = json.load(config_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +24,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'store/templates/store')
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'l65eychqtozcmv2#m-z1$t9kw$fmx315bf5zt_v1ftm9obr)!3'
+SECRET_KEY = config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -154,6 +154,6 @@ MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 #        os.path.join(BASE_DIR,'media'),
 #        ]
 
-EMAIL = '201951083@iiitvadodara.ac.in'
-PASSWORD = 'glnicjdcxfsfkzna'
+EMAIL = config['EMAIL_USER']
+PASSWORD = config['EMAIL_PASS']
 CORS_ORIGIN_ALLOW_ALL = True
