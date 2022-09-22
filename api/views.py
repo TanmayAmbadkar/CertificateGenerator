@@ -19,16 +19,13 @@ class GetCertificates(APIView):
     def post(self, request):
 
         id = request.data.get("id")
-        print(id)
         certificates = Certificate.objects.all().filter(rollno = id).order_by('id')
         if(len(certificates)!=0):
-            print("found rollno")
             return Response({'certificates':CertificateSerializer(certificates, many=True, context={'request': request}).data})
         else:
 
             try:
                 certificate = Certificate.objects.get(cert_id = id)
-                print("found cert")
                 return Response({'certificate':CertificateSerializer(certificate, context={'request': request}).data})
             except:
                 return Response(status=400, data={"message": "ID does not exist"})
@@ -52,7 +49,6 @@ class UploadInfo(APIView):
         certificate = Certificate.objects.order_by('-number').filter(year=year).first()
         try:
             number = certificate.number+1
-            print(number)
         except:
             number = 1
         df = id_generate(df, number, year, event)
@@ -82,8 +78,6 @@ class UploadInfo(APIView):
 class UploadCertificates(APIView):
 
     def post(self, request):
-
-        print("Here in Upload Certificate")
         try:
             token = request.data.get('token')
             tok = LoginToken.objects.get(token=token)
@@ -94,23 +88,17 @@ class UploadCertificates(APIView):
 
         id = request.data.get("id")
 
-        print("received Id")
-
         cert = TempCert.objects.get(id=id)
         zip = request.FILES['zip']
         df = pd.read_csv(cert.csv)
         df.head()
         data = df[['RollNo', 'Certificate ID', 'Filename', 'Name', 'Date', 'Email', 'Number']]
 
-        print("Got zip files")
+        processing(cert.event, cert.year, data, zip)
 
-        try:
-            processing(cert.event, cert.year, data, zip)
-            scheduler = BackgroundScheduler()
-            scheduler.add_job(func = mails, args = (data, cert.event, cert.year))
-            scheduler.start()
-        except Exception as e:
-            print(e)
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func = mails, args = (data, cert.event, cert.year))
+        scheduler.start()
 
         return JsonResponse(status=200, data={"message": "Process successful!"})
 
@@ -132,30 +120,25 @@ def mails(data, event, year):
 
 
 def processing(event, year, data, zip):
-
     with ZipFile(zip, 'r') as zipObj:
         zipObj.extractall('../media/certificates/')
 
-    print(data.columns)
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
 
-        try:
-            obj = Certificate(
-                cert_id = data['Certificate ID'][i],
-                id = data['Certificate ID'][i],
-                rollno = None if data['RollNo'] is None else data['RollNo'][i],
-                event = event,
-                year = year,
-                name = data['Name'][i],
-                date = data['Date'][i],
-                number = data['Number'][i],
-                institute_name = "IIITV" if data['Institute Name'] is None else data["Institute Name"][i],
-                file = fname
-            )
-            obj.save()
-        except Exception as exp:
-            print(exp)
+        obj = Certificate(
+            cert_id = data['Certificate ID'][i],
+            id = data['Certificate ID'][i],
+            rollno = None if 'RollNo' not in data else data['RollNo'][i],
+            event = event,
+            year = year,
+            name = data['Name'][i],
+            date = data['Date'][i],
+            number = data['Number'][i],
+            institute_name = "IIITV" if 'Institute Name' not in data else data["Institute Name"][i],
+            file = fname
+        )
+        obj.save()
 
 class LoginTokenView(APIView):
 
@@ -163,7 +146,6 @@ class LoginTokenView(APIView):
 
         username=request.data.get('username')
         password=request.data.get('password')
-        print(username)
         try:
             user = User.objects.get(username=username)
             if user.check_password(password):
@@ -178,10 +160,8 @@ class LoginTokenView(APIView):
 
                 return JsonResponse(status=200, data={"token":token.token, "expiry":date})
             else:
-                print("Wrong pass")
                 return JsonResponse(status=400, data={"message":"invalid username"})
         except User.DoesNotExist:
-            print("Wrong username")
             return JsonResponse(status=400, data={"message":"invalid password"})
 
 class LogoutTokenView(APIView):
