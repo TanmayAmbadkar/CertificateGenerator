@@ -23,13 +23,13 @@ class GetCertificates(APIView):
         certificates = Certificate.objects.all().filter(rollno = id).order_by('id')
         if(len(certificates)!=0):
             print("found rollno")
-            return Response({'certificates':CertificateSerializer(certificates, many=True).data})
+            return Response({'certificates':CertificateSerializer(certificates, many=True, context={'request': request}).data})
         else:
 
             try:
                 certificate = Certificate.objects.get(cert_id = id)
                 print("found cert")
-                return Response({'certificate':CertificateSerializer(certificate).data})
+                return Response({'certificate':CertificateSerializer(certificate, context={'request': request}).data})
             except:
                 return Response(status=400, data={"message": "ID does not exist"})
 
