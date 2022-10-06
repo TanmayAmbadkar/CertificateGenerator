@@ -1,17 +1,28 @@
-from django.shortcuts import render
-from store.models import *
-from rest_framework.utils import json
-from rest_framework.views import APIView
-from django.http import JsonResponse
+from ast import Pass
+from multiprocessing import AuthenticationError
+from tokenize import Token
+from zipfile import ZipFile
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from backend import settings
-from rest_framework.permissions import IsAuthenticated
-from store.utils import *
-from store.serializers import *
-from store.models import *
-from api.models import *
+from django.conf import settings
+from django.http import JsonResponse
+from django.utils.encoding import (DjangoUnicodeDecodeError, force_str,
+                                   smart_bytes)
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from zipfile import ZipFile
+from rest_framework.utils import json
+from rest_framework.views import APIView
+from store.models import *
+from store.serializers import *
+from store.utils import *
+
+from api.models import *
+from api.serializer import (PasswordResetEmailSerializer,
+                            SetNewPasswordSerializer)
+
 # Create your views here.
 
 class GetCertificates(APIView):
@@ -175,3 +186,118 @@ class LogoutTokenView(APIView):
             return JsonResponse(status=200, data={"message":"successful"})
         except  LoginToken.DoesNotExist:
             return JsonResponse(status=400, data={"message":"does not exist"})
+
+class RequestPasswordResetEmail(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+
+        serializer = PasswordResetEmailSerializer(data = request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.error_messages)
+
+        email = serializer.validated_data.get("email")
+
+        try:
+            user = User.objects.get(email = email)
+            if not user.is_superuser:
+                return Response(
+                    {
+                        "error": "Access Denied"
+                    },
+                    status = status.HTTP_401_UNAUTHORIZED 
+                )
+
+            uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+            token = PasswordResetToken(user = user)
+            token.save()
+
+            password_reset_link = (
+                "https://mycertificatesgymkhana.iiitvadodara.ac.in/reset-password/"
+                + uidb64
+                +"/"
+                + token.token
+                + "/"
+            )
+
+            params = {
+                "name": user.first_name + user.last_name,
+                "email": user.email,
+                "link": password_reset_link
+            }
+
+            send_password_reset_mail(params, settings.EMAIL, settings.PASSWORD)
+
+            return Response(
+                {
+                    "success": "Password reset link sent to your email, check your inbox"
+                },
+                status = status.HTTP_200_OK
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "error": "No admin registered with this email id"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+            print(e)
+
+class PasswordResetConfirm(APIView):
+    permission_classes = [AllowAny]
+
+    def patch(self, request):
+        serializer = SetNewPasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.error_messages)
+
+        uidb64 = serializer.validated_data.get("uidb64")
+        received_token = serializer.validated_data.get("token")
+
+        user_id = force_str(urlsafe_base64_decode(uidb64))
+
+        try:
+            user = User.objects.get(id = user_id)
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "error": "Invalid password reset link"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_token = PasswordResetToken.objects.filter(user=user).values_list('token', flat=True)
+
+        if received_token not in user_token:
+            return Response(
+                {
+                    "error": "Invalid password reset link"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        password1 = serializer.data.get("password1")
+        password2 = serializer.data.get("password2")
+
+        if password1 != password2:
+            return Response(
+                {"error": "The two passwords do not match"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user.set_password(password1)
+        user.save()
+
+        PasswordResetToken.objects.filter(token = received_token).delete()
+
+        return Response(
+            {
+                "success": "Password reset successfull"
+            },
+            status=status.HTTP_200_OK
+        )
