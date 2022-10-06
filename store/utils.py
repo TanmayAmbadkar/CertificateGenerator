@@ -50,6 +50,44 @@ def send_mail(params, email, password):
     mail.sendmail(email, params['email'], msg.as_string())
     mail.quit()
 
+def send_password_reset_mail(params, email, password):
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f"Password Reset Link for Certificate Generator"
+    msg['From'] = email
+    msg['To'] = params['email']
+
+    # Create the body of the message (a plain-text and an HTML version).
+    html = """\
+    <html lang="en">
+      <body>
+        <p>Dear """ + params['name'] + """,<p>
+        </br>
+        <p>Click on the given <a href=""" + params['link'] + """>link</a> to reset your password for Certirficate Generator.</p>
+
+        <p>Thanks and Regards,</p>
+        <p>PIC Student Affairs</p>
+        <p>IIIT Vadodara</p>
+        </br>
+
+      </body>
+    </html>
+
+    """
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part = MIMEText(html, 'html')
+
+    msg.attach(part)
+    # Send the message via local SMTP server.
+    mail = smtplib.SMTP('smtp.gmail.com', 587)
+
+    mail.ehlo()
+
+    mail.starttls()
+
+    mail.login(email, password)
+    mail.sendmail(email, params['email'], msg.as_string())
+    mail.quit()
 
 def id_generate(dataset, count, year, event_name):
     emails = dataset['Email']
