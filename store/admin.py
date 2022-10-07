@@ -4,14 +4,14 @@ from store.models import *
 
 class CertificateAdmin(admin.ModelAdmin):
     list_display = (
-        "Cert id",
-        "Rollno",
-        "Event",
-        "Date",
-        "Year"
+        "cert_id",
+        "rollno",
+        "event",
+        "date",
+        "year"
     )
 
-    search_fields = ("Rollno", "Event", "Cert id", "Year")
+    search_fields = ("rollno", "event", "cert_id", "year")
 
 admin.site.register(Certificate, CertificateAdmin)
 admin.site.register(TempCert)
