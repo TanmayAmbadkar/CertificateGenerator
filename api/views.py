@@ -132,7 +132,7 @@ def mails(data, event, year):
 
 def processing(event, year, data, zip):
     with ZipFile(zip, 'r') as zipObj:
-        zipObj.extractall('../media/certificates/')
+        zipObj.extractall('/var/www/backend/CertificateGenerator/media/certificates')
 
     for i in range(len(data)):
         fname = f'certificates/{data["Filename"][i]}'
