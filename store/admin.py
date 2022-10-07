@@ -13,5 +13,5 @@ class CertificateAdmin(admin.ModelAdmin):
 
     search_fields = ("Rollno", "Event", "Cert id", "Year")
 
-admin.site.register(Certificate)
+admin.site.register(Certificate, CertificateAdmin)
 admin.site.register(TempCert)
