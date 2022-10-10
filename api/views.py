@@ -1,19 +1,14 @@
-from ast import Pass
-from multiprocessing import AuthenticationError
-from tokenize import Token
 from zipfile import ZipFile
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from backend import settings
 from django.conf import settings
 from django.http import JsonResponse
-from django.utils.encoding import (DjangoUnicodeDecodeError, force_str,
-                                   smart_bytes)
+from django.utils.encoding import force_str, smart_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.utils import json
 from rest_framework.views import APIView
 from store.models import *
 from store.serializers import *
@@ -169,7 +164,7 @@ class LoginTokenView(APIView):
                 day = date.day
                 date = f"{month} {day}, {year} {date.strftime('%H:%M:%S')}"
 
-                return JsonResponse(status=200, data={"token":token.token, "expiry":date})
+                return JsonResponse(status=200, data={"token":token.token, "expiry":date, "is_superuser": user.is_superuser})
             else:
                 return JsonResponse(status=400, data={"message":"invalid username"})
         except User.DoesNotExist:
@@ -201,7 +196,7 @@ class RequestPasswordResetEmail(APIView):
 
         try:
             user = User.objects.get(email = email)
-            if not user.is_superuser:
+            if not user.is_staff:
                 return Response(
                     {
                         "error": "Access Denied"
@@ -245,7 +240,12 @@ class RequestPasswordResetEmail(APIView):
             )
 
         except Exception as e:
-            print(e)
+            return Response(
+                {
+                    e
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class PasswordResetConfirm(APIView):
     permission_classes = [AllowAny]
